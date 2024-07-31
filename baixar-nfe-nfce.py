@@ -10,20 +10,40 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pyautogui
 
+# Listas de empresas para cada contador
+empresas_veridiana = [
+    {"nomeEmpresa": "Prodotica", "InscricaoEstadual": "022560378"},
+    {"nomeEmpresa": "Andreza", "InscricaoEstadual": "080511430"},
+    {"nomeEmpresa": "Ericka", "InscricaoEstadual": "092742785"},
+    {"nomeEmpresa": "F.rosendo", "InscricaoEstadual": "050714961"},
+    # Adicione mais empresas conforme necessário
+]
+
+empresas_roberto = [
+    {"nomeEmpresa": "EmpresaA", "InscricaoEstadual": "044780591"},
+    {"nomeEmpresa": "EmpresaB", "InscricaoEstadual": "055890612"},
+    # Adicione mais empresas conforme necessário
+]
+
 def on_submit():
     colaborador = colaborador_var.get()
+    contador = contador_var.get()
     data_inicial = data_inicial_entry.get()
     data_final = data_final_entry.get()
     
     if colaborador == "Digite outro":
         colaborador = outro_colaborador_var.get()
 
-    if not colaborador or not data_inicial or not data_final:
+    if not colaborador or not contador or not data_inicial or not data_final:
         messagebox.showerror("Erro", "Por favor, preencha todos os campos")
     else:
-        executar_automacao(colaborador, data_inicial, data_final)
+        if contador == "Veridiana":
+            empresas = empresas_veridiana
+        else:
+            empresas = empresas_roberto
+        executar_automacao(colaborador, contador, data_inicial, data_final, empresas)
 
-def executar_automacao(colaborador, data_inicial, data_final):
+def executar_automacao(colaborador, contador, data_inicial, data_final, empresas):
     navegador = webdriver.Chrome()
     url = "https://efisco.sefaz.pe.gov.br/sfi_com_sca/PRMontarMenuAcesso"
     navegador.get(url)
@@ -47,15 +67,23 @@ def executar_automacao(colaborador, data_inicial, data_final):
         pyautogui.press("tab")
         pyautogui.write(data_final.replace("/", ""), interval=0.25)  # Data final
         pyautogui.press("tab")
-        pyautogui.write("022560378", interval=0.25)
-        pyautogui.alert("Resolva o captcha!")
-        time.sleep(50)
-        pyautogui.click(x=640, y=423)
-        time.sleep(15)
+
+        for i, empresa in enumerate(empresas):
+            if i == 0:
+                pyautogui.write(empresa["InscricaoEstadual"], interval=0.25)
+                pyautogui.alert("Resolva o captcha!")
+                time.sleep(50)
+                pyautogui.click(x=640, y=423)
+            else:
+                pyautogui.click(x=299, y=150)
+                pyautogui.hotkey("ctrl", "a")
+                pyautogui.write(empresa["InscricaoEstadual"], interval=0.25)
+                pyautogui.click(x=663, y=292)
+            time.sleep(15)
     finally:
         navegador.quit()
         # Exibir mensagem de sucesso após a automação
-        messagebox.showinfo("Sucesso", f"Automação concluída!\nColaborador: {colaborador}\nData Inicial: {data_inicial}\nData Final: {data_final}")
+        messagebox.showinfo("Sucesso", f"Automação concluída!\nColaborador: {colaborador}\nContador: {contador}\nData Inicial: {data_inicial}\nData Final: {data_final}")
 
 app = tk.Tk()
 app.title("Seleção de Colaborador e Período")
@@ -81,19 +109,25 @@ def on_colaborador_change(event):
 
 colaborador_menu.bind("<<ComboboxSelected>>", on_colaborador_change)
 
+# Campo de seleção de contador
+tk.Label(app, text="Selecione o Contador:").grid(row=2, column=0, padx=10, pady=10)
+contador_var = tk.StringVar(value="Veridiana")
+contadores = ["Veridiana", "Roberto"]
+contador_menu = ttk.Combobox(app, textvariable=contador_var, values=contadores, state="readonly")
+contador_menu.grid(row=2, column=1, padx=10, pady=10)
+
 # Campo de data inicial
-tk.Label(app, text="Data Inicial:").grid(row=2, column=0, padx=10, pady=10)
+tk.Label(app, text="Data Inicial:").grid(row=3, column=0, padx=10, pady=10)
 data_inicial_entry = DateEntry(app, date_pattern='dd/mm/yyyy')
-data_inicial_entry.grid(row=2, column=1, padx=10, pady=10)
+data_inicial_entry.grid(row=3, column=1, padx=10, pady=10)
 
 # Campo de data final
-tk.Label(app, text="Data Final:").grid(row=3, column=0, padx=10, pady=10)
+tk.Label(app, text="Data Final:").grid(row=4, column=0, padx=10, pady=10)
 data_final_entry = DateEntry(app, date_pattern='dd/mm/yyyy')
-data_final_entry.grid(row=3, column=1, padx=10, pady=10)
+data_final_entry.grid(row=4, column=1, padx=10, pady=10)
 
 # Botão de submissão
 submit_button = tk.Button(app, text="Enviar", command=on_submit)
-submit_button.grid(row=4, columnspan=2, pady=20)
+submit_button.grid(row=5, columnspan=2, pady=20)
 
 app.mainloop()
-#Fim da automação
