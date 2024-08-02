@@ -12,10 +12,8 @@ import pyautogui
 
 # Listas de empresas para cada contador
 empresas_veridiana = [
-    {"nomeEmpresa": "Prodotica", "InscricaoEstadual": "022560378"},
-    {"nomeEmpresa": "Andreza", "InscricaoEstadual": "080511430"},
-    {"nomeEmpresa": "Ericka", "InscricaoEstadual": "092742785"},
-    {"nomeEmpresa": "F.rosendo", "InscricaoEstadual": "050714961"},
+    {"nomeEmpresa": "Empresa1", "InscricaoEstadual": "022560378"},
+    {"nomeEmpresa": "Empresa2", "InscricaoEstadual": "080511430"},
     # Adicione mais empresas conforme necessário
 ]
 
